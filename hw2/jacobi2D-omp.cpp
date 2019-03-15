@@ -18,8 +18,6 @@ double calculateResidual(long N, double h, double* u, double* f);
 
 int main(int argc, char** argv) {
 
-  // Set the number of threads.
-  omp_set_num_threads(4);
 
   // The size of the matrix N-by-N.
   long N = 1000;
@@ -65,7 +63,7 @@ int main(int argc, char** argv) {
 
   // Print the final result.
   printf("\n");
-  printf("Jacobi Method for %d-by-%d matrix.\n",N,N);
+  printf("Jacobi Method for N = %d.\n",N);
   printf("Ended after %d iterations with residual %f. \n", iter, res);
   printf("Total time : %f. seconds\n",time);
   printf("\n");

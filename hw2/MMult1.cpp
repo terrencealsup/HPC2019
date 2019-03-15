@@ -5,7 +5,7 @@
 #include <omp.h>
 #include "utils.h"
 
-#define BLOCK_SIZE 128
+#define BLOCK_SIZE 256
 
 // Note: matrices are stored in column major order; i.e. the array elements in
 // the (m x n) matrix C are stored in the sequence: {C_00, C_10, ..., C_m0,
@@ -61,6 +61,7 @@ void MMult1(long m, long n, long k, double *a, double *b, double *c) {
   // blocks i.e. n = N*BLOCK_SIZE
 
   // Pre-compute these numbers to avoid doing a division every loop.
+
   long N = n/BLOCK_SIZE;
   long M = m/BLOCK_SIZE;
   long K = k/BLOCK_SIZE;
