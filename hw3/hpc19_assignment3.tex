@@ -1,0 +1,116 @@
+\documentclass[12pt]{article}
+
+%% FONTS
+%% To get the default sans serif font in latex, uncomment following line:
+ \renewcommand*\familydefault{\sfdefault}
+%%
+%% to get Arial font as the sans serif font, uncomment following line:
+%% \renewcommand{\sfdefault}{phv} % phv is the Arial font
+%%
+%% to get Helvetica font as the sans serif font, uncomment following line:
+% \usepackage{helvet}
+\usepackage[small,bf,up]{caption}
+\renewcommand{\captionfont}{\footnotesize}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphics,epsfig,graphicx,float,subfigure,color}
+\usepackage{amsmath,amssymb,amsbsy,amsfonts,amsthm}
+\usepackage{url}
+\usepackage{boxedminipage}
+\usepackage[sf,bf,tiny]{titlesec}
+ \usepackage[plainpages=false, colorlinks=true,
+   citecolor=blue, filecolor=blue, linkcolor=blue,
+   urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usepackage{tikz,pgfplots}
+
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+% see documentation for titlesec package
+% \titleformat{\section}{\large \sffamily \bfseries}
+\titlelabel{\thetitle.\,\,\,}
+
+\newcommand{\bs}{\boldsymbol}
+\newcommand{\alert}[1]{\textcolor{red}{#1}}
+\setlength{\emergencystretch}{20pt}
+
+\begin{document}
+
+\begin{center}
+  \vspace*{-2cm}
+{\small MATH-GA 2012.001 and CSCI-GA 2945.001, Georg Stadler \&
+  Dhairya Malhotra (NYU Courant)}
+\end{center}
+\vspace*{.5cm}
+
+
+\begin{center}
+\large \textbf{%%
+Spring 2019: Advanced Topics in Numerical Analysis: \\
+High Performance Computing \\
+Assignment 3 (due Apr.\ 1, 2019) }
+\end{center}
+
+
+
+\begin{center}
+\large \textbf{Terrence Alsup}
+\end{center}
+\vspace*{.5cm}
+
+
+
+
+
+% ****************************
+\begin{enumerate}
+% --------------------------
+  \item {\bf Approximating Special Functions Using Taylor Series \& Vectorization.}
+
+
+
+
+    \par To evaluate $\sin(x)$ to 12 digits of accuracy we only need to sum up to the 11th order terms since
+
+    \[
+      \sin(x) = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \frac{x^9}{9!} - \frac{x^{11}}{11!} + O(x^{13})
+    \]
+    We improve the accuracy to 12 digits for the function \texttt{sin4\_vec()} by simply adding the higher order terms.  Using a CIMS desktop Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz with 4 cores the time taken to sum this series with serial code is about 1.835s, whereas in parallel using \texttt{sin4\_vec()} it is only about 0.846, which is roughly twice as fast.\\
+\\
+
+
+
+
+
+    % ***************************
+
+  \item {\bf Parallel Scan in OpenMP.}
+
+
+	\par To parallelize the scan we break the vector into $p$ chunks, where $p$ is the number of threads we are using.  To balance the loads between each thread we split the vector into even chunks, except for possibly the last one which must handle any remaining pieces (due to integer division).  We run the scan on a vector of length $n = 10^8$ for different numbers of threads.  The machine used was a CIMS desktop which is Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz with 4 cores.  The table below shows the results.  4 threads seems to be optimal which is how many cores the machine has.  Too few threads and we have worse performance than the serial code due to the overhead cost of setting up the parallelism.  Too many threads and we can no longer see any speed-up.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| l | r |}
+\hline
+Threads & Time (s)\\
+\hline
+1 & 0.485\\
+2 & 0.286\\
+3 & 0.221\\
+4 & 0.189\\
+6 & 0.198\\
+8 & 0.215\\
+12 & 0.209\\
+\hline
+\end{tabular}
+\caption{The wall-clock time (s) to scan a vector of length $10^8$ with different threads.  For reference, the serial code takes 0.374s.
+}
+\label{table:timings}
+\end{table}
+
+
+
+\end{enumerate}
+
+
+\end{document}
