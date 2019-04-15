@@ -1,3 +1,11 @@
+/**
+File: reduction.cu
+Author: Terrence Alsup
+Date: April 15, 2019
+HPC 2019 : HW 4
+
+Implement dot product and matrix-vector product in CUDA.
+**/
 #include <algorithm>
 #include <stdio.h>
 #include <omp.h>
@@ -156,15 +164,20 @@ void gpu_dot(long N, double *a, double *b, double *sum) {
   cudaMalloc(&a_d, N * sizeof(double));
   cudaMalloc(&b_d, N * sizeof(double));
 
+
   // Transfer data to GPU.
   cudaMemcpyAsync(a_d, a, N * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpyAsync(b_d, b, N * sizeof(double), cudaMemcpyHostToDevice);
   cudaDeviceSynchronize();
 
+
   double *y_d; // Store results from blocks.
   long N_work = 1; // Number of blocks we will need.
   for (long i = (N+BLOCK_SIZE-1)/(BLOCK_SIZE); i > 1; i = (i+BLOCK_SIZE-1)/(BLOCK_SIZE)) N_work += i;
   cudaMalloc(&y_d, N_work*sizeof(double)); // extra memory buffer for reduction across thread-blocks
+
+
+  double tt = omp_get_wtime(); // Record the time.
 
   // Compute the number of blocks we need.
   double *sum_d = y_d;
@@ -185,6 +198,10 @@ void gpu_dot(long N, double *a, double *b, double *sum) {
   cudaMemcpyAsync(sum, sum_d, 1*sizeof(double), cudaMemcpyDeviceToHost);
   cudaDeviceSynchronize();
 
+  double elapsed = omp_get_wtime() - tt;
+  printf("Vector-Vector Multiply GPU Bandwidth = %f GB/s\n", 2*N*sizeof(double) / elapsed/1e9);
+
+
   // Free the memory allocated on the GPUs.
   cudaFree(a_d);
   cudaFree(b_d);
@@ -200,6 +217,8 @@ void gpu_matvec(long N, double *A, double *x, double *b) {
   cudaMalloc(&A_d, N * N * sizeof(double));
   cudaMalloc(&x_d, N * sizeof(double));
 
+
+
   // Transfer data to GPU.
   cudaMemcpyAsync(A_d, A, N * N * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpyAsync(x_d, x, N * sizeof(double), cudaMemcpyHostToDevice);
@@ -208,15 +227,20 @@ void gpu_matvec(long N, double *A, double *x, double *b) {
   double *b_d; // Store results for each entry.
   cudaMalloc(&b_d, N * sizeof(double));
 
+  double tt = omp_get_wtime(); // Record the time.
+
 
   // Compute the matrix-vector product using the GPU.
   // Note that since A has size N-by-N we use N as the number of blocks.
-  matvec_kernel<<<N,BLOCK_SIZE>>>(b_d, A_d, x_d, N);
+  matvec_kernel<<<N, BLOCK_SIZE>>>(b_d, A_d, x_d, N);
 
 
   // Transfer result back to CPU.
   cudaMemcpyAsync(b, b_d, N * sizeof(double), cudaMemcpyDeviceToHost);
   cudaDeviceSynchronize();
+
+  double elapsed = omp_get_wtime() - tt;
+  printf("Matrix-Vector Multiply GPU Bandwidth = %f GB/s\n", (3*N + N*N) * sizeof(double) / (elapsed*1e9));
 
   // Free the memory allocated on the GPUs.
   cudaFree(A_d);
@@ -227,7 +251,7 @@ void gpu_matvec(long N, double *A, double *x, double *b) {
 
 int main() {
   // Length of the vectors and size of the matrix.
-  long N = (1UL<<12); // N = 2^12
+  long N = (1UL<<10); // N = 2^10
 
   // Declare and allocate space on the CPU for the vectors and matrix as well
   // as the reference solution of the matrix-vector multiplication and the GPU
@@ -263,10 +287,7 @@ int main() {
 
   // Now compute the dot product on the GPU.
   double dot = 0;
-  tt = omp_get_wtime();
   gpu_dot(N, v1, v2, &dot);
-  elapsed = omp_get_wtime() - tt;
-  printf("Vector-Vector Multiply GPU Bandwidth = %f GB/s\n", 2*N*sizeof(double) / elapsed/1e9);
   printf("Vector-Vector Multiply Error = %f\n\n", fabs(dot-dot_ref));
 
   // Compute the reference solution for the matrix-vector product on the CPU.
@@ -277,10 +298,9 @@ int main() {
   elapsed = omp_get_wtime() - tt;
   printf("Matrix-Vector Multiply CPU Bandwidth = %f GB/s\n", (3*N + N*N) * sizeof(double) / elapsed/1e9);
 
-  tt = omp_get_wtime();
+  // Compute the matrix-vector multiplication on the GPU.
   gpu_matvec(N, A, v1, prod);
-  elapsed = omp_get_wtime() - tt;
-  printf("Matrix-Vector Multiply GPU Bandwidth = %f GB/s\n", (3*N + N*N) * sizeof(double) / elapsed/1e9);
+
   // Compute the L2 error of the vectors.
   double error = 0;
   #pragma omp parallel for reduction(+:error)
