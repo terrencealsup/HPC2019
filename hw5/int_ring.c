@@ -2,11 +2,20 @@
 #include <mpi.h>
 
 int main(int argc, char *argv[]) {
-  int rank;
+  int rank; // Which process is running this.
+  int size; // Get the number of processes.
+  int N = 100; // How many times to loop over all processors.
+
 
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+  // Loop over all of the processors.
+  for (int i = 0; i < size; i++) {
+
+
+  }
   if (rank == 0) {
     int message_out = 42;
     int message_in;
