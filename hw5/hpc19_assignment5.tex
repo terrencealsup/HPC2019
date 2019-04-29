@@ -48,10 +48,7 @@ High Performance Computing \\
 Assignment 5 (due Apr.\ 29, 2019) }
 \end{center}
 
-\noindent {\bf Handing in your homework:} Hand in your homework as for
-the previous homework assignments (git repo with Makefile), answering
-the questions by adding a text or a \LaTeX\ file to your repo.
-\\[.2ex]
+
 
 % ****************************
 \begin{enumerate}
@@ -92,30 +89,22 @@ the questions by adding a text or a \LaTeX\ file to your repo.
   \end{itemize}
 
 
-\item {\bf Provide details regarding your final project.}
-  Provide a more detailed list/table of what tasks you have done and are planning on
-  doing for your final project, including an estimate of the  week
-  you will be working on each task, and who will work on it. We are
-  thinking of something like this:
+\item {\bf Details regarding our final project.}
+
   \begin{center}
   \begin{tabular} {|c|p{9cm}|p{2cm}|}
     \hline
-    \multicolumn{3}{|c|}{\bf Project: A parallel compression algorithm
-      to build a new internet} \\
+    \multicolumn{3}{|c|}{\bf Project: Parallel KMC} \\
     \hline
     Week & Work & Who  \\ \hline \hline
-    04/15-04/21 & Read paper underlying idea and think about
-    algorithm & Richard, Erlich \\ \hline
-    04/22-04/28 & More literature search and sketch MPI parallel
-    version, write pseudocode, think of extensions in CUDA  & Richard \\ \hline
-    04/29-05/05 &  Implement basic MPI functions, update profs on
-    status, ask for help in office hours, write tests to verify
-    implementation & Erlich\\ \hline
-    05/06-05/12 & Finish implementation, fix remaining bugs,
-    experiment with compression capability, time permitting: write
-    CUDA kernel & Richard, Erlich \\ \hline
-    05/13-05/19 & Run scalability tests, work on
-    presentation slides and report  & Richard, Erlich \\ \hline
+    04/15-04/21 & Read paper.  Start thinking about
+    implementation. & Anya, Terrence \\ \hline
+    04/22-04/28 & Write pseudo-code.  Discuss boundary communication and time updating between blocks and sectors.
+    Write up weekly plan. & Anya, Terrence \\ \hline
+    04/29-05/05 & Implement 1 block for 1D.  Compare to 1D serial and PDE (error for different $L$, $\beta$). Implement multiple blocks and compare.  & Anya (first item), Terrence (third item)  \\ \hline
+    05/06-05/12 & Fix 1D bugs.  Check 2D serial.  Start 2D implementation for 1 and multiple blocks.  Compare to PDE. & Anya (second item), Terrence (third item) \\ \hline
+    05/13-05/19 & Fix bugs.  Run scalability tests. Work on
+    presentation slides and report.  & Anya, Terrence \\ \hline
   \end{tabular}
   \end{center}
 
