@@ -48,45 +48,45 @@ High Performance Computing \\
 Assignment 5 (due Apr.\ 29, 2019) }
 \end{center}
 
-
+\begin{center}
+  \vspace*{0.75cm}
+{\Large \textbf{Terrence Alsup}}
+\end{center}
 
 % ****************************
 \begin{enumerate}
 % --------------------------
 
-\item {\bf MPI ring communication.}  Write a distributed memory
-  program that sends an integer in a ring starting from process 0 to 1
-  to 2 (and so on). The last process sends the message back to process
-  0. Perform this loop $N$ times, where $N$ is set in the program or
-  on the command line.
-  \begin{itemize}
-  \item Start with sending the integer 0 and let every process add its
-    rank to the integer it received before it sends it to the next
-    processor. Use the result
-    after $N$ loops to check if all processors have properly added
-    their contribution each time they received and sent the message.
-  \item Time your program for a larger $N$ and estimate the latency on
-    your system (i.e., the time used for each communication).  If you
-    have access to the CIMS network, try to test your communication
-    ring on more than one machine such that communication must go
-    through the network.\footnote{See the computing \@ CIMS
-      information sheet posted in the first week of the class
-      on how to use multiple hosts when using \texttt{mpirun}. Note
-      that on each host, the same compiled file must be available,
-      i.e., they need to have a shared directory such as the home
-      directories in CIMS.} If you
-    use MPI on a single processor with multiple cores, the available
-    memory is logically distributed, but messages are not actually
-    sent through a network.\footnote{It depends on the implementation
-      of MPI how it handles sending/receiving of data that is stored
-      in the same physical memory.}
-  \item Hand in your solution using the filename \texttt{int\_ring.c}.
-  \item Modify your code such that instead of a single integer being
-    sent in a ring, you communicate a large array of about 2MByte in a
-    ring. Time the communication and use these timings to estimate the
-    bandwidth of your system (i.e., the amount of data that can be
-    communicated per second).
-  \end{itemize}
+\item {\bf MPI ring communication.}  
+
+The C++ program {\tt int\_ring.cpp} sends an array of integers around each processor with each processor adding its rank to every element of the array.  We ``loop" over all of the processors {\tt Nrepeat} times.  By the end every element of the array should have the value
+\[
+\text{\tt Nrepeat} \times \frac{\text{\tt size} \times (\text{\tt size} - 1)}{2}
+\]
+where {\tt size} is the number of processors.  The program can by run with the command
+\[
+\text{\tt mpirun -np 4 ./int\_ring}
+\]
+with 4 being the number of processors.  We loaded the following modules on a CIMS desktop:
+\begin{itemize}{}
+\item {\tt gcc-8.1}
+\item {\tt mpi/openmpi-x86\_64}
+\end{itemize}
+The program was tested on a CIMS desktop with a Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz processor and 4 cores.  The table below shows the estimated latency and bandwidth for a different number of processors.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l | r  r}
+{\tt size} & Latency (ms) & Bandwidth (GB/s)\\
+\hline
+2 & 8.57 e-04 & 1.18 e+00\\
+3 & 9.52 e-04 & 7.88 e-01\\
+4 & 1.22 e-03 & 5.64 e-01
+\end{tabular}
+\caption{The estimated latency and bandwidth on a CIMS desktop.  {\tt Nrepeat} = 10000, and the length of the array of integers was $2^{18}$, which has a size of approximately 2MB.}
+\label{table:table1}
+\end{table}
+
 
 
 \item {\bf Details regarding our final project.}
