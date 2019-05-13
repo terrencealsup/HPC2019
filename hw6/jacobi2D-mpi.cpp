@@ -88,12 +88,13 @@ int main(int argc, char * argv[]){
     for (int i = 1; i <= lN; i++) {
       for (int j = 1; j <= lN; j++) {
         // Note that f = 1.
-        lunew[i]  = 0.25 * (hsq + lu[(lN + 2) * (i - 1) + j]
-                                + lu[(lN + 2) * (i + 1) + j]
-                                + lu[(lN + 2) * i + j - 1]
-                                + lu[(lN + 2) * i + j + 1]);
+        lunew[(lN + 2) * i + j]  = 0.25 * (hsq + lu[(lN + 2) * (i - 1) + j]
+                                               + lu[(lN + 2) * (i + 1) + j]
+                                               + lu[(lN + 2) * i + j - 1]
+                                               + lu[(lN + 2) * i + j + 1]);
       }
     }
+
 
     /* communicate ghost values */
     double *buffer = (double *) malloc(sizeof(double) * (lN + 2));
@@ -106,10 +107,10 @@ int main(int argc, char * argv[]){
       for (int i = 0; i <= lN + 1; i++) {
         buffer[i] = lunew[(lN + 2) * lN + i];
       }
-      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank + rootp, 0, MPI_COMM_WORLD);
+      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank + rootp, 101, MPI_COMM_WORLD);
 
       // Values to recieve.
-      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank + rootp, 0, MPI_COMM_WORLD, &status0);
+      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank + rootp, 102, MPI_COMM_WORLD, &status0);
       for (int i = 0; i <= lN + 1; i++) {
         lunew[(lN + 2) * (lN + 1) + i] = buffer[i];
       }
@@ -123,10 +124,10 @@ int main(int argc, char * argv[]){
       for (int i = 0; i <= lN + 1; i++) {
         buffer[i] = lunew[lN + i];
       }
-      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank - rootp, 0, MPI_COMM_WORLD);
+      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank - rootp, 102, MPI_COMM_WORLD);
 
       // Values to recieve.
-      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank - rootp, 0, MPI_COMM_WORLD, &status1);
+      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank - rootp, 101, MPI_COMM_WORLD, &status1);
       for (int i = 0; i <= lN + 1; i++) {
         lunew[i] = buffer[i];
       }
@@ -140,10 +141,10 @@ int main(int argc, char * argv[]){
       for (int i = 0; i <= lN + 1; i++) {
         buffer[i] = lunew[(lN + 2) * i + 1];
       }
-      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank - 1, 0, MPI_COMM_WORLD);
+      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank - 1, 103, MPI_COMM_WORLD);
 
       // Values to recieve.
-      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank - 1, 0, MPI_COMM_WORLD, &status2);
+      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank - 1, 104, MPI_COMM_WORLD, &status2);
       for (int i = 0; i <= lN + 1; i++) {
         lunew[(lN + 2) * i] = buffer[i];
       }
@@ -157,19 +158,18 @@ int main(int argc, char * argv[]){
       for (int i = 0; i <= lN + 1; i++) {
         buffer[i] = lunew[(lN + 2) * (i + 1) - 2];
       }
-      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank + 1, 0, MPI_COMM_WORLD);
+      MPI_Send(buffer, lN + 2, MPI_DOUBLE, mpirank + 1, 104, MPI_COMM_WORLD);
 
       // Values to recieve.
-      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank + 1, 0, MPI_COMM_WORLD, &status3);
+      MPI_Recv(buffer, lN + 2, MPI_DOUBLE, mpirank + 1, 103, MPI_COMM_WORLD, &status3);
       for (int i = 0; i <= lN + 1; i++) {
         lunew[(lN + 2) * (i + 1) - 2] = buffer[i];
       }
     }
 
-
     /* copy newu to u using pointer flipping */
     lutemp = lu; lu = lunew; lunew = lutemp;
-    if (0 == (iter % 100)) {
+    if (0 == (iter % 10)) {
       gres = compute_residual(lu, lN, invhsq);
       if (0 == mpirank) {
 	       printf("Iter %d: Residual: %f\n", iter, gres);
