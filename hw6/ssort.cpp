@@ -16,7 +16,7 @@ int main( int argc, char *argv[]) {
 
   // Number of random numbers per processor (this should be increased
   // for actual tests or could be passed in through the command line
-  int N = 100000;
+  int N = 1000000;
 
   int* vec = (int*)malloc(N*sizeof(int));
   // seed random number generator differently on every core
